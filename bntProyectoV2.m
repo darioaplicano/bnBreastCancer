@@ -22,7 +22,7 @@ function varargout = bntProyectoV2(varargin)
 
 % Edit the above text to modify the response to help bntProyectoV2
 
-% Last Modified by GUIDE v2.5 23-Dec-2018 17:08:37
+% Last Modified by GUIDE v2.5 23-Dec-2018 06:17:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -47,28 +47,24 @@ end
 % --- Executes just before bntProyectoV2 is made visible.
 function bntProyectoV2_OpeningFcn(hObject, eventdata, handles, varargin)
 global bnet; %La red de bayesian Network
+global N; %Número de nodos de la red
 global FC; %Familiares con cancer
 global EPP; %Edad del primer parto
 global RMP; %Resultado de la mamografía previa
-global OPP; %Operación previa en el pecho
 global DP; %Densidad del pecho
 global IMC; %Indice de masa corporal
-global R; %Raza
 global M; %Menopausia
 global TH; %Tratamiento hormonal
 global GE; %Grupo de edad
 global HM; %Historial Médico
-global CC; %Características coporales
-global MH; %Marcadores hormonales
+global MEM; %Características coporales
 global TC; %Tipo de cancer
 global TT; %Tipo de tumor encontrado
 global G; %Grado del tumor
-global E; %Extensión del tumor
-global NNE; %Número de nodos examinados
-global NI; %Número de nodos involucrados
-global NNM; %Número de nodos metástasis
-global MT; %Marcadores tumorales
-global ENL; %Estado de los nodos linfáticos
+global PI; %Piel Infiltrada
+global NP; %Número de nodos positivos
+global CI; %Capsula Infiltrada
+global Ri; %Riesgo
 global Re; %Recurrencia del tumor
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
@@ -81,68 +77,55 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-    N = 23; %Representa el número de nodos en la red
+    N = 18; %Representa el número de nodos en la red
     dag = zeros(N,N); %Es una matriz de adyacencia de los nodos de tamaño N
     %Cada letra representa un nodo diferente y además están numerado en orden topológico.
     FC = 1; %Familiares con cancer
     EPP = 2; %Edad del primer parto
     RMP = 3; %Resultado de la mamografía previa
-    OPP = 4; %Operación previa en el pecho
-    DP = 5; %Densidad del pecho
-    IMC = 6; %Indice de masa corporal
-    R = 7; %Raza
-    M = 8; %Menopausia
-    TH = 9; %Tratamiento hormonal
-    GE = 10; %Grupo de edad
-    HM = 11; %Historial Médico
-    CC = 12; %Características coporales
-    MH = 13; %Marcadores hormonales
-    TC = 14; %Tipo de cancer
-    TT = 15; %Tipo de tumor encontrado
-    G = 16; %Grado del tumor
-    E = 17; %Extensión del tumor
-    NNE = 18; %Número de nodos examinados
-    NI = 19; %Número de nodos involucrados
-    NNM = 20; %Número de nodos metástasis
-    MT = 21; %Marcadores tumorales
-    ENL = 22; %Estado de los nodos linfáticos
-    Re = 23; %Recurrencia del tumor
+    DP = 4; %Densidad del pecho
+    IMC = 5; %Indice de masa corporal
+    M = 6; %Menopausia
+    TH = 7; %Tratamiento hormonal
+    GE = 8; %Grupo de edad
+    HM = 9; %Historial Médico
+    MEM = 10; %Marcadores Edad Menopausia
+    TC = 11; %Tipo de cancer
+    TT = 12; %Tipo de tumor encontrado
+    G = 13; %Grado del tumor
+    PI = 14; %Piel Infiltrada
+    NP = 15; %Número de nodos positivos
+    CI = 16; %Capsula infiltrada
+    Ri = 17; %Riesgo
+    Re = 18; %Recurrencia del tumor
     
     %Generamos la conexión en la matriz de adyacencia
     dag(FC,HM)=1;
     dag(EPP,HM)=1;
     dag(RMP,HM)=1;
-    dag(OPP,HM)=1;
+    dag(DP,HM)=1;
     
-    dag(DP,CC)=1;
-    dag(IMC,CC)=1;
-    dag(R,CC)=1;
-    
-    dag(M,MH)=1;
-    dag(TH,MH)=1;
-    dag(GE,MH)=1;
+    dag(IMC,MEM)=1;
+    dag(M,MEM)=1;
+    dag(TH,MEM)=1;
+    dag(GE,MEM)=1;
     
     dag(HM,TC)=1;
-    dag(CC,TC)=1;
-    dag(MH,TC)=1;
+    dag(MEM,TC)=1;
     
     dag(TC,TT)=1;
     dag(TC,G)=1;
-    dag(TC,E)=1;
-    dag(TC,NNE)=1;
-    dag(TC,NI)=1;
-    dag(TC,NNM)=1;
+    dag(TC,PI)=1;
+    dag(TC,NP)=1;
+    dag(TC,CI)=1;
     
-    dag(TT,MT)=1;
-    dag(G,MT)=1;
-    dag(E,MT)=1;
+    dag(TT,Ri)=1;
+    dag(G,Ri)=1;
+    dag(PI,Ri)=1;
+    dag(NP,Ri)=1;
+    dag(CI,Ri)=1;
     
-    dag(NNE,ENL)=1;
-    dag(NI,ENL)=1;
-    dag(NNM,ENL)=1;
-    
-    dag(MT,Re)=1;
-    dag(ENL,Re)=1;
+    dag(Ri,Re)=1;
     
     %Especificación del tamaño y tipo de cada nodo
     %Considerando que solo estamos trabajando con nodos discretos
@@ -150,43 +133,36 @@ guidata(hObject, handles);
     
     %Ahora creamos un arreglo de 1xN representando cuantos valores puede
     %tomar cada nodo
-    node_sizes = [2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2];
+    node_sizes = [3 3 2 4 2 3 2 5 3 3 2 3 3 2 3 2 3 2];
     
     %Ahora construiremos la red de bayes
-    bnet = mk_bnet(dag, node_sizes, 'names', {'FC','EPP','RMP','OPP','DP','IMC','R','M','TH','GE','HM','CC','MH','TC','TT','G','E','NNE','NI','NNM','MT','ENL','Re'}, 'discrete', discrete_nodes);    
+    bnet = mk_bnet(dag, node_sizes, 'names', {'FC','EPP','RMP','DP','IMC','M','TH','GE','HM','MEM','TC','TT','G','PI','NP','CI','Ri','Re'}, 'discrete', discrete_nodes);    
     
     %Ahora se genera la CPT con las probabilidades de cada suceso 
-    bnet.CPD{FC} = tabular_CPD(bnet, FC, [0.89 0.11]);
-    bnet.CPD{EPP} = tabular_CPD(bnet, EPP, [0.4 0.6]);
-    bnet.CPD{RMP} = tabular_CPD(bnet, RMP, [0.07 0.93]);
-    bnet.CPD{OPP} = tabular_CPD(bnet, OPP, [0.65 0.35]);
+    bnet.CPD{FC} = tabular_CPD(bnet, FC, [0.766188198 0.206858054 0.026953748]);
+    bnet.CPD{EPP} = tabular_CPD(bnet, EPP, [0.699202552 0.132216906 0.168580542]);
+    bnet.CPD{RMP} = tabular_CPD(bnet, RMP, [0.977751196 0.022248804]);
+    bnet.CPD{DP} = tabular_CPD(bnet, DP, [0.027392344 0.406818182 0.475717703 0.09007177]);
     
-    bnet.CPD{DP} = tabular_CPD(bnet, DP, [0.87 0.13]);
-    bnet.CPD{IMC} = tabular_CPD(bnet, IMC, [0.78 0.22]);
-    bnet.CPD{R} = tabular_CPD(bnet, R, [0.17 0.83]);
+    bnet.CPD{IMC} = tabular_CPD(bnet, IMC, [0.908851675 0.091148325]);
+    bnet.CPD{M} = tabular_CPD(bnet, M, [0.201116427 0.603030303 0.195853270]);
+    bnet.CPD{TH} = tabular_CPD(bnet, TH, [0.614114833 0.385885167]);
+    bnet.CPD{GE} = tabular_CPD(bnet, GE, [0.061818182 0.276172249 0.303923445 0.232631579 0.125454545]);
     
-    bnet.CPD{M} = tabular_CPD(bnet, M, [0.71 0.29]);
-    bnet.CPD{TH} = tabular_CPD(bnet, TH, [0.17 0.83]);
-    bnet.CPD{GE} = tabular_CPD(bnet, GE, [0.19 0.81]);
+    bnet.CPD{HM} = tabular_CPD(bnet, HM, [0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.05 0.01 0.9 0.05 0.01 0.9 0.9 0.05 0.05 0.05 0.01 0.05 0.05 0.01 0.9 0.05 0.05 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.9 0.9 0.09 0.9 0.9 0.09 0.09 0.9 0.9 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.05 0.9 0.01 0.05 0.9 0.01 0.01 0.05 0.05 0.05 0.9 0.05 0.05 0.9 0.01 0.05 0.05 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9]);
+    bnet.CPD{MEM} = tabular_CPD(bnet, MEM, [0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.05 0.9 0.05 0.05 0.01 0.05 0.05 0.9 0.05 0.05 0.05 0.05 0.01 0.05 0.05 0.01 0.01 0.05 0.01 0.05 0.05 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.9 0.09 0.9 0.9 0.09 0.9 0.9 0.09 0.9 0.9 0.9 0.9 0.09 0.9 0.9 0.09 0.09 0.9 0.09 0.9 0.9 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.05 0.01 0.05 0.05 0.9 0.05 0.05 0.01 0.05 0.05 0.05 0.05 0.9 0.05 0.05 0.9 0.9 0.05 0.9 0.05 0.05 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9]);
     
-    bnet.CPD{HM} = tabular_CPD(bnet, HM, [0.98 0.26 0.31 0.36 0.96 0.43 0.7 0.07 0.16 0.73 0.01 0.3 0.67 0.85 0.03 0.06 0.02 0.74 0.69 0.64 0.04 0.57 0.3 0.93 0.84 0.27 0.99 0.7 0.33 0.15 0.97 0.94]);
-    bnet.CPD{CC} = tabular_CPD(bnet, CC, [0.92 0.97 0.7 1 0.3 0.61 0.19 0.33 0.08 0.03 0.3 0 0.7 0.39 0.81 0.67]);
-    bnet.CPD{MH} = tabular_CPD(bnet, MH, [0.49 0.51 0.7 0.59 0.67 0.68 0.75 0.97 0.51 0.49 0.3 0.41 0.33 0.32 0.25 0.03]);
+    bnet.CPD{TC} = tabular_CPD(bnet, TC, [0.255118161 0.319732449 0.326963434 0.18987826 0.218640159 0.254927998 0.176220701 0.198768402 0.157412136 0.744881839 0.680267551 0.673036566 0.81012174 0.781359841 0.745072002 0.823779299 0.801231598 0.842587864]);
     
-    bnet.CPD{TC} = tabular_CPD(bnet, TC, [0.86 0.6 0.24 0.87 0.59 0.97 0.52 0.49 0.14 0.4 0.76 0.13 0.41 0.03 0.48 0.51]);
+    bnet.CPD{TT} = tabular_CPD(bnet, TT, [0.5028444 0.25327141 0.42424129 0.67184979 0.072914317 0.074878799]);
+    bnet.CPD{G} = tabular_CPD(bnet, G, [0.15108513 0.21013473 0.39097311 0.42403473 0.45794176 0.36583054]);
+    bnet.CPD{PI} = tabular_CPD(bnet, PI, [0.99999060 0.93018571 0.00000940 0.06981429]);
+    bnet.CPD{NP} = tabular_CPD(bnet, NP, [0.999987470 0.694942600 0.000006265 0.208855340 0.000006265 0.096202060]);
+    bnet.CPD{CI} = tabular_CPD(bnet, CI, [0.99999060 0.84422804 0.00000940 0.15577196]);
+
+    bnet.CPD{Ri} = tabular_CPD(bnet, Ri, [0.9 0.9 0.01 0.9 0.9 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.9 0.05 0.01 0.9 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.01 0.01 0.9 0.01 0.01 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.01 0.05 0.9 0.01 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9]);
     
-    bnet.CPD{TT} = tabular_CPD(bnet, TT, [0.48 0.67 0.52 0.33]);
-    bnet.CPD{G} = tabular_CPD(bnet, G, [0.58 0.06 0.42 0.94]);
-    bnet.CPD{E} = tabular_CPD(bnet, E, [0.53 0.44 0.47 0.56]);
-    
-    bnet.CPD{NNE} = tabular_CPD(bnet, NNE, [0.37 0.95 0.63 0.05]);
-    bnet.CPD{NI} = tabular_CPD(bnet, NI, [0.16 0.01 0.84 0.99]);
-    bnet.CPD{NNM} = tabular_CPD(bnet, NNM, [0.32 0.98 0.68 0.02]);
-    
-    bnet.CPD{MT} = tabular_CPD(bnet, MT, [0.21 0.29 0.52 0.02 0.76 0.48 0.1 0.29 0.79 0.71 0.48 0.98 0.24 0.52 0.9 0.71]);
-    bnet.CPD{ENL} = tabular_CPD(bnet, ENL, [0.24 0.73 0.6 0.99 0.2 0.13 0.1 0.68 0.76 0.27 0.4 0.01 0.8 0.87 0.9 0.32 ]);
-    
-    bnet.CPD{Re} = tabular_CPD(bnet, Re, [0.59 0.59 0.44 0.65 0.41 0.41 0.56 0.35]);
+    bnet.CPD{Re} = tabular_CPD(bnet, Re, [0.93383101 0.95596359 0.94047789 0.066168992 0.04403641 0.059522108]);
 
 
 % UIWAIT makes bntProyectoV2 wait for user response (see UIRESUME)
@@ -1061,29 +1037,25 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     clc;
-    global bnet;
+    global bnet; %La red de bayesian Network
+    global N; %Número de nodos de la red
     global FC; %Familiares con cancer
     global EPP; %Edad del primer parto
     global RMP; %Resultado de la mamografía previa
-    global OPP; %Operación previa en el pecho
     global DP; %Densidad del pecho
     global IMC; %Indice de masa corporal
-    global R; %Raza
     global M; %Menopausia
     global TH; %Tratamiento hormonal
     global GE; %Grupo de edad
     global HM; %Historial Médico
-    global CC; %Características coporales
-    global MH; %Marcadores hormonales
+    global MEM; %Características coporales
     global TC; %Tipo de cancer
     global TT; %Tipo de tumor encontrado
     global G; %Grado del tumor
-    global E; %Extensión del tumor
-    global NNE; %Número de nodos examinados
-    global NI; %Número de nodos involucrados
-    global NNM; %Número de nodos metástasis
-    global MT; %Marcadores tumorales
-    global ENL; %Estado de los nodos linfáticos
+    global PI; %Piel Infiltrada
+    global NP; %Número de nodos positivos
+    global CI; %Capsula Infiltrada
+    global Ri; %Riesgo
     global Re; %Recurrencia del tumor
     engine = jtree_inf_engine(bnet);
     ocurrencia = 0;
@@ -1091,61 +1063,52 @@ function pushbutton1_Callback(hObject, eventdata, handles)
     %Determinando la probabilidad de que variable
     if get(handles.popupmenu2,'Value')>1
         ocurrencia = FC;
-        listaPosibilidades = get(handles.popupmenu2,'String');
+        listaPosibilidades = get(handles.popupmenu20,'String');
     elseif get(handles.popupmenu3,'Value')>1
         ocurrencia = EPP;
-        listaPosibilidades = get(handles.popupmenu3,'String');
+        listaPosibilidades = get(handles.popupmenu21,'String');
     elseif get(handles.popupmenu4,'Value')>1
         ocurrencia = RMP;
-        listaPosibilidades = get(handles.popupmenu4,'String');
-    elseif get(handles.popupmenu5,'Value')>1
-        ocurrencia = OPP;
-        listaPosibilidades = get(handles.popupmenu5,'String');
+        listaPosibilidades = get(handles.popupmenu22,'String');
     elseif get(handles.popupmenu6,'Value')>1
         ocurrencia = DP;
-        listaPosibilidades = get(handles.popupmenu6,'String');
+        listaPosibilidades = get(handles.popupmenu24,'String');
     elseif get(handles.popupmenu7,'Value')>1
         ocurrencia = IMC;
-        listaPosibilidades = get(handles.popupmenu7,'String');
-    elseif get(handles.popupmenu8,'Value')>1
-        ocurrencia = R;
-        listaPosibilidades = get(handles.popupmenu8,'String');
+        listaPosibilidades = get(handles.popupmenu25,'String');
     elseif get(handles.popupmenu9,'Value')>1
         ocurrencia = M;
-        listaPosibilidades = get(handles.popupmenu9,'String');
+        listaPosibilidades = get(handles.popupmenu27,'String');
     elseif get(handles.popupmenu10,'Value')>1
         ocurrencia = TH;
-        listaPosibilidades = get(handles.popupmenu10,'String');
+        listaPosibilidades = get(handles.popupmenu28,'String');
     elseif get(handles.popupmenu11,'Value')>1
         ocurrencia = GE;
-        listaPosibilidades = get(handles.popupmenu11,'String');
+        listaPosibilidades = get(handles.popupmenu29,'String');
     elseif get(handles.popupmenu12,'Value')>1
         ocurrencia = TC;
-        listaPosibilidades = get(handles.popupmenu12,'String');
+        listaPosibilidades = get(handles.popupmenu30,'String');
     elseif get(handles.popupmenu13,'Value')>1
         ocurrencia = TT;
-        listaPosibilidades = get(handles.popupmenu13,'String');
+        listaPosibilidades = get(handles.popupmenu31,'String');
     elseif get(handles.popupmenu14,'Value')>1
         ocurrencia = G;
-        listaPosibilidades = get(handles.popupmenu14,'String');
+        listaPosibilidades = get(handles.popupmenu32,'String');
     elseif get(handles.popupmenu15,'Value')>1
-        ocurrencia = E;
-        listaPosibilidades = get(handles.popupmenu15,'String');
+        ocurrencia = PI;
+        listaPosibilidades = get(handles.popupmenu33,'String');
     elseif get(handles.popupmenu16,'Value')>1
-        ocurrencia = NNE;
-        listaPosibilidades = get(handles.popupmenu16,'String');
+        ocurrencia = NP;
+        listaPosibilidades = get(handles.popupmenu34,'String');
     elseif get(handles.popupmenu17,'Value')>1
-        ocurrencia = NI;
-        listaPosibilidades = get(handles.popupmenu17,'String');
-    elseif get(handles.popupmenu18,'Value')>1
-        ocurrencia = NNM;
-        listaPosibilidades = get(handles.popupmenu18,'String');
+        ocurrencia = CI;
+        listaPosibilidades = get(handles.popupmenu35,'String');
     elseif get(handles.popupmenu19,'Value')>1
         ocurrencia = Re;
-        listaPosibilidades = get(handles.popupmenu19,'String');
+        listaPosibilidades = get(handles.popupmenu37,'String');
     end
     
-    evidence = cell(1,23);
+    evidence = cell(1,N);
     %Determinando las evidencias
     if get(handles.popupmenu20,'Value')>1
         evidence{FC} = get(handles.popupmenu20,'Value')-1;
@@ -1156,17 +1119,11 @@ function pushbutton1_Callback(hObject, eventdata, handles)
     if get(handles.popupmenu22,'Value')>1
         evidence{RMP} = get(handles.popupmenu22,'Value')-1;
     end
-    if get(handles.popupmenu23,'Value')>1
-        evidence{OPP} = get(handles.popupmenu23,'Value')-1;
-    end
     if get(handles.popupmenu24,'Value')>1
         evidence{DP} = get(handles.popupmenu24,'Value')-1;
     end
     if get(handles.popupmenu25,'Value')>1
         evidence{IMC} = get(handles.popupmenu25,'Value')-1;
-    end
-    if get(handles.popupmenu26,'Value')>1
-        evidence{R} = get(handles.popupmenu26,'Value')-1;
     end
     if get(handles.popupmenu27,'Value')>1
         evidence{M} = get(handles.popupmenu27,'Value')-1;
@@ -1187,16 +1144,13 @@ function pushbutton1_Callback(hObject, eventdata, handles)
         evidence{G} = get(handles.popupmenu32,'Value')-1;
     end
     if get(handles.popupmenu33,'Value')>1
-        evidence{E} = get(handles.popupmenu33,'Value')-1;
+        evidence{PI} = get(handles.popupmenu33,'Value')-1;
     end
     if get(handles.popupmenu34,'Value')>1
-        evidence{NNE} = get(handles.popupmenu34,'Value')-1;
+        evidence{NP} = get(handles.popupmenu34,'Value')-1;
     end
     if get(handles.popupmenu35,'Value')>1
-        evidence{NI} = get(handles.popupmenu35,'Value')-1;
-    end
-    if get(handles.popupmenu36,'Value')>1
-        evidence{NNM} = get(handles.popupmenu36,'Value')-1;
+        evidence{CI} = get(handles.popupmenu35,'Value')-1;
     end
     if get(handles.popupmenu37,'Value')>1
         evidence{Re} = get(handles.popupmenu37,'Value')-1;
@@ -1206,20 +1160,29 @@ function pushbutton1_Callback(hObject, eventdata, handles)
         %Generamos una probabilidad condicionada
         [engine, loglik] = enter_evidence(engine, evidence);
         marg = marginal_nodes(engine, ocurrencia); %Engine contiene la distribución apriori de todos los nodos y luego se marginaliza
-        marg.T; %Se obtiene el valor cuyo resultado es verdadero
+        marg.T %Se obtiene el valor cuyo resultado es verdadero
         %bar(marg.T)
-        listaCorregida = cell(1,size(listaPosibilidades,1)-2);
-        probabilidad = cell(1,size(listaPosibilidades,1)-2);
-        for i=3: size(listaPosibilidades,1)
-            listaCorregida{i-2} = listaPosibilidades{i};
-            probabilidad{i-2}=marg.T(i-2);
+        ncl = 1; %Número de elementos que no se consideran en la lista
+        listaCorregida = cell(1,size(listaPosibilidades,1)-ncl);
+        probabilidad = cell(1,size(listaPosibilidades,1)-ncl);
+        error = 0; %Probilidad igual a la evidencia
+        for i=(1+ncl): size(listaPosibilidades,1)
+            listaCorregida{i-ncl} = listaPosibilidades{i};
+            try
+                probabilidad{i-ncl}=marg.T(i-ncl);
+            catch exception
+                msgbox('La probabilidad es 1');
+                error = 1; %Determina que se presentó una probabilidad con propias evidencias
+            end     
         end
-        listaCorregida'
-        probabilidad'
-        T = table(probabilidad','RowNames',listaCorregida','VariableNames',{'Probabilidad'})
-        f = figure;
-        d = [listaCorregida',probabilidad']
-        uit = uitable(f,'Data',d);
+        if error ~= 1
+            listaCorregida'
+            probabilidad'
+            T = table(probabilidad','RowNames',listaCorregida','VariableNames',{'Probabilidad'})
+            f = figure;
+            d = [listaCorregida',probabilidad']
+            uit = uitable(f,'Data',d);
+        end
     end
 
 
