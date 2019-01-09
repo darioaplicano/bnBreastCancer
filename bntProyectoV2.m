@@ -22,7 +22,7 @@ function varargout = bntProyectoV2(varargin)
 
 % Edit the above text to modify the response to help bntProyectoV2
 
-% Last Modified by GUIDE v2.5 23-Dec-2018 06:17:35
+% Last Modified by GUIDE v2.5 09-Jan-2019 06:39:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -46,26 +46,39 @@ end
 
 % --- Executes just before bntProyectoV2 is made visible.
 function bntProyectoV2_OpeningFcn(hObject, eventdata, handles, varargin)
+
+%Crear variables globales que funcionen en todo el programa
 global bnet; %La red de bayesian Network
-global N; %Número de nodos de la red
-global FC; %Familiares con cancer
-global EPP; %Edad del primer parto
-global RMP; %Resultado de la mamografía previa
-global DP; %Densidad del pecho
-global IMC; %Indice de masa corporal
-global M; %Menopausia
-global TH; %Tratamiento hormonal
-global GE; %Grupo de edad
-global HM; %Historial Médico
-global MEM; %Características coporales
-global TC; %Tipo de cancer
-global TT; %Tipo de tumor encontrado
-global G; %Grado del tumor
-global PI; %Piel Infiltrada
-global NP; %Número de nodos positivos
-global CI; %Capsula Infiltrada
-global Ri; %Riesgo
-global Re; %Recurrencia del tumor
+global N;
+global dag;
+global nodosVariables;
+global node_sizes;
+global nodosPadres;
+global nodosProbabilidades;
+
+%Leer el archivo exportado de Genie utilizando la librería xml2struct
+c = xml2struct('TRAINED.xdsl');
+
+%Acceder hasta la parte donde están los nodos
+d = c(2).Children;
+e = d(2).Children;
+
+%Determinar la cantidad de nodos en la red
+N=(length(e)-1)/2;
+
+%Crear la matriz de adyacencia como una matriz de ceros
+dag = zeros(N,N);
+
+%Crear arreglos de información respecto a los nodos de la red
+nodosVariables = strings(1,N); %Cada nodo de la red con sus Nombre
+node_sizes = [1:1:N]; %Cada nodo de la red carga sus elementos
+nodosPadres = strings(1,N); %Cada nodo de la red carga sus padres
+nodosProbabilidades = strings(1,N); %Cada nodo de la red carga sus probabilidades
+
+%Crear una variable acumuladora para recorrer los arreglos
+items = 1;
+
+
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -77,93 +90,77 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-    N = 18; %Representa el número de nodos en la red
-    dag = zeros(N,N); %Es una matriz de adyacencia de los nodos de tamaño N
-    %Cada letra representa un nodo diferente y además están numerado en orden topológico.
-    FC = 1; %Familiares con cancer
-    EPP = 2; %Edad del primer parto
-    RMP = 3; %Resultado de la mamografía previa
-    DP = 4; %Densidad del pecho
-    IMC = 5; %Indice de masa corporal
-    M = 6; %Menopausia
-    TH = 7; %Tratamiento hormonal
-    GE = 8; %Grupo de edad
-    HM = 9; %Historial Médico
-    MEM = 10; %Marcadores Edad Menopausia
-    TC = 11; %Tipo de cancer
-    TT = 12; %Tipo de tumor encontrado
-    G = 13; %Grado del tumor
-    PI = 14; %Piel Infiltrada
-    NP = 15; %Número de nodos positivos
-    CI = 16; %Capsula infiltrada
-    Ri = 17; %Riesgo
-    Re = 18; %Recurrencia del tumor
     
-    %Generamos la conexión en la matriz de adyacencia
-    dag(FC,HM)=1;
-    dag(EPP,HM)=1;
-    dag(RMP,HM)=1;
-    dag(DP,HM)=1;
-    
-    dag(IMC,MEM)=1;
-    dag(M,MEM)=1;
-    dag(TH,MEM)=1;
-    dag(GE,MEM)=1;
-    
-    dag(HM,TC)=1;
-    dag(MEM,TC)=1;
-    
-    dag(TC,TT)=1;
-    dag(TC,G)=1;
-    dag(TC,PI)=1;
-    dag(TC,NP)=1;
-    dag(TC,CI)=1;
-    
-    dag(TT,Ri)=1;
-    dag(G,Ri)=1;
-    dag(PI,Ri)=1;
-    dag(NP,Ri)=1;
-    dag(CI,Ri)=1;
-    
-    dag(Ri,Re)=1;
-    
-    %Especificación del tamaño y tipo de cada nodo
-    %Considerando que solo estamos trabajando con nodos discretos
-    discrete_nodes = 1:N; %Representamos la discreción de cada nodo como un arreglo de 1xN columnas
-    
-    %Ahora creamos un arreglo de 1xN representando cuantos valores puede
-    %tomar cada nodo
-    node_sizes = [3 3 2 4 2 3 2 5 3 3 2 3 3 2 3 2 3 2];
-    
-    %Ahora construiremos la red de bayes
-    bnet = mk_bnet(dag, node_sizes, 'names', {'FC','EPP','RMP','DP','IMC','M','TH','GE','HM','MEM','TC','TT','G','PI','NP','CI','Ri','Re'}, 'discrete', discrete_nodes);    
-    
-    %Ahora se genera la CPT con las probabilidades de cada suceso 
-    bnet.CPD{FC} = tabular_CPD(bnet, FC, [0.766188198 0.206858054 0.026953748]);
-    bnet.CPD{EPP} = tabular_CPD(bnet, EPP, [0.699202552 0.132216906 0.168580542]);
-    bnet.CPD{RMP} = tabular_CPD(bnet, RMP, [0.977751196 0.022248804]);
-    bnet.CPD{DP} = tabular_CPD(bnet, DP, [0.027392344 0.406818182 0.475717703 0.09007177]);
-    
-    bnet.CPD{IMC} = tabular_CPD(bnet, IMC, [0.908851675 0.091148325]);
-    bnet.CPD{M} = tabular_CPD(bnet, M, [0.201116427 0.603030303 0.195853270]);
-    bnet.CPD{TH} = tabular_CPD(bnet, TH, [0.614114833 0.385885167]);
-    bnet.CPD{GE} = tabular_CPD(bnet, GE, [0.061818182 0.276172249 0.303923445 0.232631579 0.125454545]);
-    
-    bnet.CPD{HM} = tabular_CPD(bnet, HM, [0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.05 0.9 0.05 0.01 0.9 0.05 0.01 0.9 0.9 0.05 0.05 0.05 0.01 0.05 0.05 0.01 0.9 0.05 0.05 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.9 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.9 0.9 0.09 0.9 0.9 0.09 0.09 0.9 0.9 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.01 0.05 0.01 0.05 0.9 0.01 0.05 0.9 0.01 0.01 0.05 0.05 0.05 0.9 0.05 0.05 0.9 0.01 0.05 0.05 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.05 0.9 0.9 0.05 0.9 0.9 0.01 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9]);
-    bnet.CPD{MEM} = tabular_CPD(bnet, MEM, [0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.05 0.9 0.05 0.05 0.01 0.05 0.05 0.9 0.05 0.05 0.05 0.05 0.01 0.05 0.05 0.01 0.01 0.05 0.01 0.05 0.05 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.9 0.09 0.9 0.9 0.09 0.9 0.9 0.09 0.9 0.9 0.9 0.9 0.09 0.9 0.9 0.09 0.09 0.9 0.09 0.9 0.9 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.05 0.01 0.05 0.05 0.9 0.05 0.05 0.01 0.05 0.05 0.05 0.05 0.9 0.05 0.05 0.9 0.9 0.05 0.9 0.05 0.05 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9]);
-    
-    bnet.CPD{TC} = tabular_CPD(bnet, TC, [0.255118161 0.319732449 0.326963434 0.18987826 0.218640159 0.254927998 0.176220701 0.198768402 0.157412136 0.744881839 0.680267551 0.673036566 0.81012174 0.781359841 0.745072002 0.823779299 0.801231598 0.842587864]);
-    
-    bnet.CPD{TT} = tabular_CPD(bnet, TT, [0.5028444 0.25327141 0.42424129 0.67184979 0.072914317 0.074878799]);
-    bnet.CPD{G} = tabular_CPD(bnet, G, [0.15108513 0.21013473 0.39097311 0.42403473 0.45794176 0.36583054]);
-    bnet.CPD{PI} = tabular_CPD(bnet, PI, [0.99999060 0.93018571 0.00000940 0.06981429]);
-    bnet.CPD{NP} = tabular_CPD(bnet, NP, [0.999987470 0.694942600 0.000006265 0.208855340 0.000006265 0.096202060]);
-    bnet.CPD{CI} = tabular_CPD(bnet, CI, [0.99999060 0.84422804 0.00000940 0.15577196]);
+%Iterar sobre todos los elementos en la posición actual de la estructura
+for i = 1:length(e)
+    Name = e(i).Name; %Nombre que pueden no ser los cpt de la red
+    if strcmp(Name,'cpt') %Verificar el trabajar solo con los cpt
+        variableName = e(i).Attributes.Value; %Nombre de cada nodo
+        nodosVariables(items) = variableName; %Adicionar los nombres a la lista de nodos
+        
+        %obtener información sobre los elementos de cada nodo
+        f = e(i).Children; %Acceder a los elementos
+        contarState = 0; %Acumulador que lleva el control de la cantidad de elementos
+        pro = -1; %Controlar la posición de las probabilidades
+        par = -1; %Controlar la posición de los padres
+        
+        for j=1:length(f)
+            if strcmp(f(j).Name,'state')
+                contarState = contarState+1;
+            end
+            
+            if strcmp(f(j).Name,'probabilities')
+                pro = j;
+            end
+            
+            if strcmp(f(j).Name,'parents')
+                par = j;
+            end
+        end
+        
+        %Adicionar la información a las listas
+        node_sizes(items) = contarState; %Adicionar la cantidad de elementos de cada nodo
+        nodosProbabilidades(items) = f(pro).Children.Data; %Adicionar las probabilidades de cada nodo
+        if par ~= -1
+            nodosPadres(items) = f(par).Children.Data; %Adicionar los padres de cada nodo
+        else
+            nodosPadres(items) = "N/A"; %Adicionar "N/A" en el caso de no tener padres
+        end
+        
+        items=items+1; %Aumenta en uno el item
+    end
+end
 
-    bnet.CPD{Ri} = tabular_CPD(bnet, Ri, [0.9 0.9 0.01 0.9 0.9 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.9 0.05 0.01 0.9 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.05 0.01 0.01 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.09 0.9 0.09 0.09 0.01 0.01 0.9 0.01 0.01 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.01 0.05 0.9 0.01 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.9 0.05 0.9 0.9]);
-    
-    bnet.CPD{Re} = tabular_CPD(bnet, Re, [0.93383101 0.95596359 0.94047789 0.066168992 0.04403641 0.059522108]);
+%Recorrer la lista de nodos para crear una matriz de adyacencias
+for i = 1:N
+    if ~strcmp(nodosPadres(i),"N/A") %Identificar los nodos que tienen padres
+        padres = split(nodosPadres(i)); %Separar el string en un arreglo de padres
+        for j = 1:length(padres) %Recorrer el arreglo de padres
+            for k = 1:N
+                if strcmp(padres(j),nodosVariables(k))
+                    dag(k,i)=1; %Asignar la relaciónS
+                end
+            end
+        end
+    end
+end
 
+%Crear un arreglo que represente la discreción de los elementos de 1xN
+discrete_nodes = 1:N;
+
+%Construir la red de bayes
+bnet = mk_bnet(dag, node_sizes, 'names', nodosVariables, 'discrete', discrete_nodes);
+    
+%Generar la CPT con las probabilidades de cada nodo
+for i= 1:N
+    probabilidades = split(nodosProbabilidades(i)); %Separar el string en un arreglo de probabilidades
+    M = length(probabilidades) %Número de probabilidades de cada nodo
+    probabilities = [1:M] %Crear un arreglo con valores de 1 a M para almacenar por separado las probabilidades
+    for j=1:M %Recorrer las M probabilidades encontradas
+        probabilities(j) = probabilidades(j); %Pasar cada arreglo de caracteres a número
+    end
+    bnet.CPD{i} = tabular_CPD(bnet, i, probabilities) %Crear la CPT de cada nodo i
+end
 
 % UIWAIT makes bntProyectoV2 wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -1036,138 +1033,167 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    %Limpiar la ventana de comandos de windows de matlab
     clc;
+    
+    %Llamar las variables globales anteriormente creadas
     global bnet; %La red de bayesian Network
     global N; %Número de nodos de la red
-    global FC; %Familiares con cancer
-    global EPP; %Edad del primer parto
-    global RMP; %Resultado de la mamografía previa
-    global DP; %Densidad del pecho
-    global IMC; %Indice de masa corporal
-    global M; %Menopausia
-    global TH; %Tratamiento hormonal
-    global GE; %Grupo de edad
-    global HM; %Historial Médico
-    global MEM; %Características coporales
-    global TC; %Tipo de cancer
-    global TT; %Tipo de tumor encontrado
-    global G; %Grado del tumor
-    global PI; %Piel Infiltrada
-    global NP; %Número de nodos positivos
-    global CI; %Capsula Infiltrada
-    global Ri; %Riesgo
-    global Re; %Recurrencia del tumor
-    engine = jtree_inf_engine(bnet);
-    ocurrencia = 0;
     
-    %Determinando la probabilidad de que variable
+    %Generar el motor de inferencia exacta
+    engine = jtree_inf_engine(bnet);
+    
+    %Crear un arreglo que almacene todos los nodos para las
+    %probabibilidades de la forma P(X)
+    ocurrencia = zeros(1,N);
+    
+    %Determinar cuales fueron los nodos incluidos para la forma P(X)
     if get(handles.popupmenu2,'Value')>1
-        ocurrencia = FC;
+        ocurrencia(1) = 1;
         listaPosibilidades = get(handles.popupmenu20,'String');
-    elseif get(handles.popupmenu3,'Value')>1
-        ocurrencia = EPP;
+    end
+    if get(handles.popupmenu3,'Value')>1
+        ocurrencia(2) = 2;
         listaPosibilidades = get(handles.popupmenu21,'String');
-    elseif get(handles.popupmenu4,'Value')>1
-        ocurrencia = RMP;
+    end
+    if get(handles.popupmenu4,'Value')>1
+        ocurrencia(3) = 3;
         listaPosibilidades = get(handles.popupmenu22,'String');
-    elseif get(handles.popupmenu6,'Value')>1
-        ocurrencia = DP;
+    end
+    if get(handles.popupmenu6,'Value')>1
+        ocurrencia(4) = 4;
         listaPosibilidades = get(handles.popupmenu24,'String');
-    elseif get(handles.popupmenu7,'Value')>1
-        ocurrencia = IMC;
+    end
+    if get(handles.popupmenu7,'Value')>1
+        ocurrencia(8) = 8;
         listaPosibilidades = get(handles.popupmenu25,'String');
-    elseif get(handles.popupmenu9,'Value')>1
-        ocurrencia = M;
+    end
+    if get(handles.popupmenu9,'Value')>1
+        ocurrencia(7) = 7;
         listaPosibilidades = get(handles.popupmenu27,'String');
-    elseif get(handles.popupmenu10,'Value')>1
-        ocurrencia = TH;
+    end
+    if get(handles.popupmenu10,'Value')>1
+        ocurrencia(6) = 6;
         listaPosibilidades = get(handles.popupmenu28,'String');
-    elseif get(handles.popupmenu11,'Value')>1
-        ocurrencia = GE;
+    end
+    if get(handles.popupmenu11,'Value')>1
+        ocurrencia(9) = 9;
         listaPosibilidades = get(handles.popupmenu29,'String');
-    elseif get(handles.popupmenu12,'Value')>1
-        ocurrencia = TC;
+    end
+    if get(handles.popupmenu12,'Value')>1
+        ocurrencia(11) = 11;
         listaPosibilidades = get(handles.popupmenu30,'String');
-    elseif get(handles.popupmenu13,'Value')>1
-        ocurrencia = TT;
+    end
+    if get(handles.popupmenu13,'Value')>1
+        ocurrencia(12) = 12;
         listaPosibilidades = get(handles.popupmenu31,'String');
-    elseif get(handles.popupmenu14,'Value')>1
-        ocurrencia = G;
+    end
+    if get(handles.popupmenu14,'Value')>1
+        ocurrencia(13) = 13;
         listaPosibilidades = get(handles.popupmenu32,'String');
-    elseif get(handles.popupmenu15,'Value')>1
-        ocurrencia = PI;
+    end
+    if get(handles.popupmenu15,'Value')>1
+        ocurrencia(14) = 14;
         listaPosibilidades = get(handles.popupmenu33,'String');
-    elseif get(handles.popupmenu16,'Value')>1
-        ocurrencia = NP;
+    end
+    if get(handles.popupmenu16,'Value')>1
+        ocurrencia(16) = 16;
         listaPosibilidades = get(handles.popupmenu34,'String');
-    elseif get(handles.popupmenu17,'Value')>1
-        ocurrencia = CI;
+    end
+    if get(handles.popupmenu17,'Value')>1
+        ocurrencia(17) = 17;
         listaPosibilidades = get(handles.popupmenu35,'String');
-    elseif get(handles.popupmenu19,'Value')>1
-        ocurrencia = Re;
+    end
+    if get(handles.popupmenu38,'Value')>1
+        ocurrencia(18) = 18;
+        listaPosibilidades = get(handles.popupmenu39,'String');
+    end
+    if get(handles.popupmenu19,'Value')>1
+        ocurrencia(20) = 20;
         listaPosibilidades = get(handles.popupmenu37,'String');
     end
     
+    %Crear un arreglo unidimensional que almecene las evidencias dadas
     evidence = cell(1,N);
-    %Determinando las evidencias
+    
+    %Determinar cuales fueron los nodos y las evidencias para la forma
+    %P(X|Y)
     if get(handles.popupmenu20,'Value')>1
-        evidence{FC} = get(handles.popupmenu20,'Value')-1;
+        evidence{1} = get(handles.popupmenu20,'Value')-1;
     end
     if get(handles.popupmenu21,'Value')>1
-        evidence{EPP} = get(handles.popupmenu21,'Value')-1;
+        evidence{2} = get(handles.popupmenu21,'Value')-1;
     end
     if get(handles.popupmenu22,'Value')>1
-        evidence{RMP} = get(handles.popupmenu22,'Value')-1;
+        evidence{3} = get(handles.popupmenu22,'Value')-1;
     end
     if get(handles.popupmenu24,'Value')>1
-        evidence{DP} = get(handles.popupmenu24,'Value')-1;
+        evidence{4} = get(handles.popupmenu24,'Value')-1;
     end
     if get(handles.popupmenu25,'Value')>1
-        evidence{IMC} = get(handles.popupmenu25,'Value')-1;
+        evidence{8} = get(handles.popupmenu25,'Value')-1;
     end
     if get(handles.popupmenu27,'Value')>1
-        evidence{M} = get(handles.popupmenu27,'Value')-1;
+        evidence{7} = get(handles.popupmenu27,'Value')-1;
     end
     if get(handles.popupmenu28,'Value')>1
-        evidence{TH} = get(handles.popupmenu28,'Value')-1;
+        evidence{6} = get(handles.popupmenu28,'Value')-1;
     end
     if get(handles.popupmenu29,'Value')>1
-        evidence{GE} = get(handles.popupmenu29,'Value')-1;
+        evidence{9} = get(handles.popupmenu29,'Value')-1;
     end
     if get(handles.popupmenu30,'Value')>1
-        evidence{TC} = get(handles.popupmenu30,'Value')-1;
+        evidence{11} = get(handles.popupmenu30,'Value')-1;
     end
     if get(handles.popupmenu31,'Value')>1
-        evidence{TT} = get(handles.popupmenu31,'Value')-1;
+        evidence{12} = get(handles.popupmenu31,'Value')-1;
     end
     if get(handles.popupmenu32,'Value')>1
-        evidence{G} = get(handles.popupmenu32,'Value')-1;
+        evidence{13} = get(handles.popupmenu32,'Value')-1;
     end
     if get(handles.popupmenu33,'Value')>1
-        evidence{PI} = get(handles.popupmenu33,'Value')-1;
+        evidence{14} = get(handles.popupmenu33,'Value')-1;
     end
     if get(handles.popupmenu34,'Value')>1
-        evidence{NP} = get(handles.popupmenu34,'Value')-1;
+        evidence{16} = get(handles.popupmenu34,'Value')-1;
     end
     if get(handles.popupmenu35,'Value')>1
-        evidence{CI} = get(handles.popupmenu35,'Value')-1;
+        evidence{17} = get(handles.popupmenu35,'Value')-1;
+    end
+    if get(handles.popupmenu39,'Value')>1
+        evidence{18} = get(handles.popupmenu39,'Value')-1;
     end
     if get(handles.popupmenu37,'Value')>1
-        evidence{Re} = get(handles.popupmenu37,'Value')-1;
+        evidence{20} = get(handles.popupmenu37,'Value')-1;
     end
+    
+    vector = find (ocurrencia ~= 0); %Crear un arreglo que solo tenga los nodos para la forma P(X) 
 
-    if ocurrencia ~= 0
-        %Generamos una probabilidad condicionada
+    if length(vector) == 1 %Si los nodos incluidos solo fueron uno
+        
+        %Generar las probabilidades condicionadas
         [engine, loglik] = enter_evidence(engine, evidence);
-        marg = marginal_nodes(engine, ocurrencia); %Engine contiene la distribución apriori de todos los nodos y luego se marginaliza
-        marg.T %Se obtiene el valor cuyo resultado es verdadero
-        %bar(marg.T)
-        ncl = 1; %Número de elementos que no se consideran en la lista
+        marg = marginal_nodes(engine, vector); %Engine contiene la distribución apriori de todos los nodos y luego se marginaliza
+        marg.T %Se obtienen todas las probabilidades para el nodo incluido
+        
+        ncl = 1; %Número de elementos que no se consideran en la lista (GUI)
+        
+        %Crear listas corregidas de las probabilidades y los elementos del
+        %nodo incluido
         listaCorregida = cell(1,size(listaPosibilidades,1)-ncl);
         probabilidad = cell(1,size(listaPosibilidades,1)-ncl);
-        error = 0; %Probilidad igual a la evidencia
+        
+        %Utilizar un centinela en el caso de encontrar un error en la
+        %ejecución
+        error = 0; %El número de probabilidades con el número de elementos del nodo no coincide
+        
+        %Recorrer los elementos de las primeras listas de probabilidades y
+        %elementos
         for i=(1+ncl): size(listaPosibilidades,1)
-            listaCorregida{i-ncl} = listaPosibilidades{i};
+            listaCorregida{i-ncl} = listaPosibilidades{i}; %Asignar las probabilidades a la lista corregida
+            
+            %Capturar algún error de tamaño de arreglos o de evidencias de
+            %nodos iguales a los nodos seleccionados
             try
                 probabilidad{i-ncl}=marg.T(i-ncl);
             catch exception
@@ -1175,13 +1201,24 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 error = 1; %Determina que se presentó una probabilidad con propias evidencias
             end     
         end
-        if error ~= 1
-            listaCorregida'
-            probabilidad'
+        if error ~= 1 %En el caso de no encontrar un error            
+            %Crear una tabla con las probabilidades encontradas
             T = table(probabilidad','RowNames',listaCorregida','VariableNames',{'Probabilidad'})
             f = figure;
             d = [listaCorregida',probabilidad']
+            %Cargar la tabla a una figura en interfaz gráfica
             uit = uitable(f,'Data',d);
+        end
+    elseif length(vector) > 1 %Si los nodos incluidos fueron más de uno
+        %Generar las probabilidades condicionadas
+        [engine, loglik] = enter_evidence(engine, evidence);
+        
+        %Capturar el posible error de clique
+        try
+            marg = marginal_nodes(engine, vector); %Engine contiene la distribución apriori de todos los nodos y luego se marginaliza
+            marg.T
+        catch exception
+            msgbox('La probabilidad a encontrar no genera clique');
         end
     end
 
@@ -1193,3 +1230,49 @@ function pushbutton1_ButtonDownFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %Hacer inferencia en la red creada
+
+
+% --- Executes on selection change in popupmenu39.
+function popupmenu39_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu39 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu39 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu39
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu39_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu39 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu38.
+function popupmenu38_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu38 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu38 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu38
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu38_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu38 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
