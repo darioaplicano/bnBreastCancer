@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- This network was created in GeNIe Academic, which can be used for educational and research purposes only -->
+<smile version="1.0" id="Network1" numsamples="10000" discsamples="10000">
+	<nodes>
+		<cpt id="FamiliaresCancer">
+			<state id="cero" />
+			<state id="uno" />
+			<state id="mas_de_uno" />
+			<probabilities>0.7664082709364429 0.2067901885981978 0.02680154046535935</probabilities>
+		</cpt>
+		<cpt id="EdadPrimerParto">
+			<state id="menos30" />
+			<state id="mas30" />
+			<state id="nulipara" />
+			<probabilities>0.6993613016050808 0.1321220935321014 0.1685166048628178</probabilities>
+		</cpt>
+		<cpt id="ResultadoMamografiaPrevia">
+			<state id="negativo" />
+			<state id="falso_positivo" />
+			<probabilities>0.9779756205164468 0.02202437948355322</probabilities>
+		</cpt>
+		<cpt id="DensidadPecho">
+			<state id="grasa" />
+			<state id="disperso" />
+			<state id="heterogeneo" />
+			<state id="denso" />
+			<probabilities>0.02729153297767303 0.4068962277393183 0.4758174397053471 0.08999479957766153</probabilities>
+		</cpt>
+		<cpt id="HistorialMedico">
+			<state id="Bajo" />
+			<state id="Medio" />
+			<state id="Alto" />
+			<parents>FamiliaresCancer EdadPrimerParto ResultadoMamografiaPrevia DensidadPecho</parents>
+			<probabilities>0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9</probabilities>
+		</cpt>
+		<cpt id="TratamientoHormonal">
+			<state id="no" />
+			<state id="si" />
+			<probabilities>0.6141581602105233 0.3858418397894768</probabilities>
+		</cpt>
+		<cpt id="Menopausia">
+			<state id="premenopausica" />
+			<state id="natural" />
+			<state id="quirurgica" />
+			<probabilities>0.2010316262914223 0.6031775177359098 0.1957908559726679</probabilities>
+		</cpt>
+		<cpt id="IndiceMasaCorporal">
+			<state id="menos35" />
+			<state id="mas35" />
+			<probabilities>0.9090533646609528 0.09094663533904727</probabilities>
+		</cpt>
+		<cpt id="GrupoEdad">
+			<state id="e35a44" />
+			<state id="e45a54" />
+			<state id="e55a64" />
+			<state id="e65a74" />
+			<state id="e75a84" />
+			<probabilities>0.06175278524779101 0.2762004941850312 0.3039656056822547 0.2326537124995635 0.1254274023853595</probabilities>
+		</cpt>
+		<cpt id="MarcadoresEdadMenopausia">
+			<state id="Bajo" />
+			<state id="Medio" />
+			<state id="Alto" />
+			<parents>TratamientoHormonal Menopausia IndiceMasaCorporal GrupoEdad</parents>
+			<probabilities>0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.05 0.9 0.05 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9</probabilities>
+		</cpt>
+		<cpt id="TipoCancer">
+			<state id="no_invasivo" />
+			<state id="invasivo" />
+			<parents>HistorialMedico MarcadoresEdadMenopausia</parents>
+			<probabilities>0.2500663663199164 0.7499336336800837 0.1916873414593231 0.8083126585406769 0.1744893561659469 0.825510643834053 0.3275016239082216 0.6724983760917784 0.2084687314977675 0.7915312685022327 0.2007075841409678 0.7992924158590322 0.3107874206286642 0.6892125793713357 0.2688238593697286 0.7311761406302714 0.1091951685355743 0.8908048314644257</probabilities>
+		</cpt>
+		<cpt id="TamanoTumor">
+			<state id="menos50mm" />
+			<state id="mas50mm" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.9272176045010017 0.07278239549899826 0.9251284887877698 0.07487151121223025</probabilities>
+		</cpt>
+		<cpt id="Extension">
+			<state id="no_ha_infiltrado_musculo" />
+			<state id="musculo_infiltrado" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.9999937281506835 6.271849316375209e-06 0.9564418879365371 0.04355811206346297</probabilities>
+		</cpt>
+		<cpt id="NodosInvolucrados">
+			<state id="capsula_no_infiltrada" />
+			<state id="capsula_infiltrada" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.9999968593590146 3.140640985356694e-06 0.844121101262917 0.1558788987370831</probabilities>
+		</cpt>
+		<cpt id="NumNodosMetastasis">
+			<state id="ninguno" />
+			<state id="alguno" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.9999905523649 9.447635100067461e-06 0.694312313881183 0.3056876861188171</probabilities>
+		</cpt>
+		<cpt id="NumNodosExaminados">
+			<state id="menos8" />
+			<state id="mas8" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.9661841904474243 0.03381580955257561 0.5277346191776545 0.4722653808223455</probabilities>
+		</cpt>
+		<cpt id="Grado">
+			<state id="IoII" />
+			<state id="IIIoIV" />
+			<parents>TipoCancer</parents>
+			<probabilities>0.5419289646069866 0.4580710353930134 0.63430660549339 0.3656933945066101</probabilities>
+		</cpt>
+		<cpt id="EstadoNodosLinfaticos">
+			<state id="bueno" />
+			<state id="regular" />
+			<state id="malo" />
+			<parents>NumNodosExaminados NumNodosMetastasis NodosInvolucrados</parents>
+			<probabilities>0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.01 0.09 0.9 0.01 0.09 0.9</probabilities>
+		</cpt>
+		<cpt id="MarcadoresTumorales">
+			<state id="bueno" />
+			<state id="regular" />
+			<state id="malo" />
+			<parents>TamanoTumor Grado Extension</parents>
+			<probabilities>0.9 0.09 0.01 0.9 0.09 0.01 0.05 0.9 0.05 0.01 0.09 0.9 0.9 0.09 0.01 0.9 0.09 0.01 0.01 0.09 0.9 0.01 0.09 0.9</probabilities>
+		</cpt>
+		<cpt id="Recurrencia">
+			<state id="no_recurre" />
+			<state id="recurre" />
+			<parents>EstadoNodosLinfaticos MarcadoresTumorales</parents>
+			<probabilities>0.9390707664857918 0.06092923351420834 0.9234731113605881 0.07652688863941183 0.9492198979862326 0.05078010201376734 0.9094166576311865 0.09058334236881357 0.9905284299841104 0.009471570015889511 0.9766977078614196 0.02330229213858049 0.959725417923239 0.04027458207676097 0.9413652386920335 0.05863476130796648 0.9617654201854098 0.03823457981459032</probabilities>
+		</cpt>
+	</nodes>
+	<extensions>
+		<genie version="1.0" app="GeNIe 2.2.2601.0 ACADEMIC" name="Network1" faultnameformat="nodestate">
+			<node id="GrupoEdad">
+				<name>GrupoEdad</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>1275 29 1343 71</position>
+			</node>
+			<node id="Menopausia">
+				<name>Menopausia</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>1004 30 1074 73</position>
+			</node>
+			<node id="FamiliaresCancer">
+				<name>FamiliaresCancer</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>149 30 273 83</position>
+			</node>
+			<node id="EdadPrimerParto">
+				<name>EdadPrimerParto</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>304 23 396 80</position>
+			</node>
+			<node id="DensidadPecho">
+				<name>DensidadPecho</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>571 37 694 90</position>
+			</node>
+			<node id="TratamientoHormonal">
+				<name>TratamientoHormonal</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>827 29 988 78</position>
+			</node>
+			<node id="ResultadoMamografiaPrevia">
+				<name>ResultadoMamografiaPrevia</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>425 33 555 81</position>
+			</node>
+			<node id="TipoCancer">
+				<name>TipoCancer</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>728 375 796 417</position>
+			</node>
+			<node id="HistorialMedico">
+				<name>HistorialMédico</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>282 189 405 241</position>
+			</node>
+			<node id="MarcadoresEdadMenopausia">
+				<name>MarcadoresEdadMenopausia</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>1028 151 1216 228</position>
+			</node>
+			<node id="IndiceMasaCorporal">
+				<name>IndiceMasaCorporal</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>1097 19 1237 71</position>
+			</node>
+			<node id="TamanoTumor">
+				<name>TamanoTumor</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>364 611 458 664</position>
+			</node>
+			<node id="Extension">
+				<name>Extensión</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>611 608 720 670</position>
+			</node>
+			<node id="NodosInvolucrados">
+				<name>NodosInvolucrados</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>1136 604 1249 651</position>
+			</node>
+			<node id="NumNodosMetastasis">
+				<name>NúmeroNodosMetástasis</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>974 602 1129 646</position>
+			</node>
+			<node id="NumNodosExaminados">
+				<name>NúmeroNodosExaminados</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>801 600 964 650</position>
+			</node>
+			<node id="Grado">
+				<name>Grado</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>479 609 564 664</position>
+			</node>
+			<node id="Recurrencia">
+				<name>Recurrencia</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>719 845 794 881</position>
+			</node>
+			<node id="MarcadoresTumorales">
+				<name>MarcadoresTumorales</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>434 729 583 805</position>
+			</node>
+			<node id="EstadoNodosLinfaticos">
+				<name>EstadoNodosLinfaticos</name>
+				<interior color="e5f6f7" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>897 735 1037 804</position>
+			</node>
+		</genie>
+	</extensions>
+</smile>
